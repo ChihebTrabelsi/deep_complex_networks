@@ -2,7 +2,7 @@ Deep Complex Networks
 =====================
 
 This repository contains code which reproduces experiments presented in
-the paper [Deep Complex Networks](<put link here>).
+the paper [Deep Complex Networks](https://arxiv.org/abs/1705.09792).
 
 Requirements
 ------------
@@ -96,5 +96,10 @@ Citation
 Please cite our work as 
 
 ```
-TODO: add bibtex
+@ARTICLE {,
+    author  = "Chiheb Trabelsi, Olexa Bilaniuk, Dmitriy Serdyuk, Sandeep Subramanian, João Felipe Santos, Soroush Mehri, Negar Rostamzadeh, Yoshua Bengio, Christopher J Pal",
+    title   = "Deep Complex Networks",
+    journal = "arXiv preprint arXiv:1705.09792",
+    year    = "2017"
+}
 ```
