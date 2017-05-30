@@ -1,6 +1,14 @@
 MIT License
 
-Copyright (c) 2017 ChihebTrabelsi
+Copyright (c) 2017 Chiheb Trabelsi
+Copyright (c) 2017 Olexa Bilaniuk
+Copyright (c) 2017 Dmitriy Serdyuk
+Copyright (c) 2017 Sandeep Subramanian
+Copyright (c) 2017 João Felipe Santos
+Copyright (c) 2017 Soroush Mehri
+Copyright (c) 2017 Negar Rostamzadeh
+Copyright (c) 2017 Yoshua Bengio
+Copyright (c) 2017 Christopher J Pal
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
