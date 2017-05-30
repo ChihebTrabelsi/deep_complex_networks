@@ -1,0 +1,36 @@
+# Global ignore patters. They cause the files with the following names and
+# extensions to be ignored in general by Git.
+#
+# We ignore these files because they're usually binary and/or very large, which
+# greatly bloats the repository and its clone time. In this category are the
+# files .h5/.hdf5/.txt/.log and files named *log_file*. Some of these logs are
+# enormous.
+#
+# We also ignore files that can be easily reproduced one way or another by
+# compilers, like .pyc/.o/.so/.a/.lib.
+#
+# Lastly we ignore files and directories that signal their temporary character
+# with a name that contains "tmp".
+#
+# ****************************************************************************
+# ** DO NOT put ignore patterns here that are private to your clone of this **
+# ** repository. Those belong in your clone's .git/info/exclude file.       **
+# ****************************************************************************
+#
+**/*.h5
+**/*.hdf5
+**/*.txt
+**/*log_file*
+**/*.log
+**/*.out
+**/*.pyc
+**/*.o
+**/*.so
+**/*.a
+**/*.lib
+**/*.dll
+**/*.exe
+**/*tmp*
+**/*.yaml
+**/*.npy
+**/slurm-*.out
