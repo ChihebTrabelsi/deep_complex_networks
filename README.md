@@ -36,13 +36,13 @@ Experiments
 1. Get help:
 
     ```
-    python run.py train --help
+    python scripts/run.py train --help
     ```
 
 2. Run models:
 
     ```
-    python run.py train -w WORKDIR --model {real,complex} --sf STARTFILTER --nb NUMBEROFBLOCKSPERSTAGE
+    python scripts/run.py train -w WORKDIR --model {real,complex} --sf STARTFILTER --nb NUMBEROFBLOCKSPERSTAGE
     ```
 
     Other arguments may be added as well; Refer to run.py train --help for
