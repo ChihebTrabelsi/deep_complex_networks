@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 #
-# Authors: Dmitriy Serdyuk, Olexa Bilaniuk, Chiheb Trabelsi, Sandeep Subramanian
+# Authors: Dmitriy Serdyuk
 
 import keras.backend as K
 import keras

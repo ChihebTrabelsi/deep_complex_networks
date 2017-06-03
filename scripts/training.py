@@ -5,8 +5,6 @@
 # Imports
 import complexnn
 from   complexnn                             import ComplexBN,\
-                                                    ComplexConvRecurrent2D,\
-                                                    ComplexConvLSTM2D,\
                                                     ComplexConv1D,\
                                                     ComplexConv2D,\
                                                     ComplexConv3D,\
