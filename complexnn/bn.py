@@ -20,6 +20,19 @@ def sqrt_init(shape, dtype=None):
     return value
 
 
+def sanitizedInitGet(init):
+    if init in ["sqrt_init"]:
+        return sqrt_init
+    else:
+        return initializers.get(init)
+def sanitizedInitSer(init):
+    if init in [sqrt_init]:
+        return "sqrt_init"
+    else:
+        return initializers.serialize(init)
+
+
+
 def complex_standardization(input_centred, Vrr, Vii, Vri,
                             layernorm=False, axis=-1):
     
@@ -246,24 +259,18 @@ class ComplexBatchNormalization(Layer):
         self.epsilon = epsilon
         self.center = center
         self.scale = scale
-        self.beta_initializer = initializers.get(beta_initializer)
-        if gamma_diag_initializer != 'sqrt_init':
-            self.gamma_diag_initializer = initializers.get(gamma_diag_initializer)
-        else:
-            self.gamma_diag_initializer = sqrt_init
-        self.gamma_off_initializer = initializers.get(gamma_off_initializer)
-        self.moving_mean_initializer = initializers.get(moving_mean_initializer)
-        if moving_variance_initializer != 'sqrt_init':
-            self.moving_variance_initializer = initializers.get(moving_variance_initializer)
-        else:
-            self.moving_variance_initializer = sqrt_init
-        self.moving_covariance_initializer = initializers.get(moving_covariance_initializer)
-        self.beta_regularizer = regularizers.get(beta_regularizer)
-        self.gamma_diag_regularizer = regularizers.get(gamma_diag_regularizer)
-        self.gamma_off_regularizer = regularizers.get(gamma_off_regularizer)
-        self.beta_constraint = constraints.get(beta_constraint)
-        self.gamma_diag_constraint = constraints.get(gamma_diag_constraint)
-        self.gamma_off_constraint = constraints.get(gamma_off_constraint)
+        self.beta_initializer              = sanitizedInitGet(beta_initializer)
+        self.gamma_diag_initializer        = sanitizedInitGet(gamma_diag_initializer)
+        self.gamma_off_initializer         = sanitizedInitGet(gamma_off_initializer)
+        self.moving_mean_initializer       = sanitizedInitGet(moving_mean_initializer)
+        self.moving_variance_initializer   = sanitizedInitGet(moving_variance_initializer)
+        self.moving_covariance_initializer = sanitizedInitGet(moving_covariance_initializer)
+        self.beta_regularizer              = regularizers.get(beta_regularizer)
+        self.gamma_diag_regularizer        = regularizers.get(gamma_diag_regularizer)
+        self.gamma_off_regularizer         = regularizers.get(gamma_off_regularizer)
+        self.beta_constraint               = constraints .get(beta_constraint)
+        self.gamma_diag_constraint         = constraints .get(gamma_diag_constraint)
+        self.gamma_off_constraint          = constraints .get(gamma_off_constraint)
 
     def build(self, input_shape):
 
@@ -434,18 +441,18 @@ class ComplexBatchNormalization(Layer):
             'epsilon': self.epsilon,
             'center': self.center,
             'scale': self.scale,
-            'beta_initializer': initializers.serialize(self.beta_initializer),
-            'gamma_diag_initializer': initializers.serialize(self.gamma_diag_initializer) if self.gamma_diag_initializer != sqrt_init else 'sqrt_init',
-            'gamma_off_initializer': initializers.serialize(self.gamma_off_initializer),
-            'moving_mean_initializer': initializers.serialize(self.moving_mean_initializer),
-            'moving_variance_initializer': initializers.serialize(self.moving_variance_initializer) if self.moving_variance_initializer != sqrt_init else 'sqrt_init',
-            'moving_covariance_initializer': initializers.serialize(self.moving_covariance_initializer),
-            'beta_regularizer': regularizers.serialize(self.beta_regularizer),
-            'gamma_diag_regularizer': regularizers.serialize(self.gamma_diag_regularizer),
-            'gamma_off_regularizer': regularizers.serialize(self.gamma_off_regularizer),
-            'beta_constraint': constraints.serialize(self.beta_constraint),
-            'gamma_diag_constraint': constraints.serialize(self.gamma_diag_constraint),
-            'gamma_off_constraint': constraints.serialize(self.gamma_off_constraint),
+            'beta_initializer':              sanitizedInitSer(self.beta_initializer),
+            'gamma_diag_initializer':        sanitizedInitSer(self.gamma_diag_initializer),
+            'gamma_off_initializer':         sanitizedInitSer(self.gamma_off_initializer),
+            'moving_mean_initializer':       sanitizedInitSer(self.moving_mean_initializer),
+            'moving_variance_initializer':   sanitizedInitSer(self.moving_variance_initializer),
+            'moving_covariance_initializer': sanitizedInitSer(self.moving_covariance_initializer),
+            'beta_regularizer':              regularizers.serialize(self.beta_regularizer),
+            'gamma_diag_regularizer':        regularizers.serialize(self.gamma_diag_regularizer),
+            'gamma_off_regularizer':         regularizers.serialize(self.gamma_off_regularizer),
+            'beta_constraint':               constraints .serialize(self.beta_constraint),
+            'gamma_diag_constraint':         constraints .serialize(self.gamma_diag_constraint),
+            'gamma_off_constraint':          constraints .serialize(self.gamma_off_constraint),
         }
         base_config = super(ComplexBatchNormalization, self).get_config()
         return dict(list(base_config.items()) + list(config.items()))

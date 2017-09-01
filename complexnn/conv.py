@@ -21,6 +21,27 @@ from .init import ComplexInit, ComplexIndependentFilters
 from .norm import LayerNormalization, ComplexLayerNorm
 
 
+
+def sanitizedInitGet(init):
+	if   init in ["sqrt_init"]:
+		return sqrt_init
+	elif init in ["complex", "complex_independent",
+	              "glorot_complex", "he_complex"]:
+		return init
+	else:
+		return initializers.get(init)
+def sanitizedInitSer(init):
+	if init in [sqrt_init]:
+		return "sqrt_init"
+	elif init == "complex" or isinstance(init, ComplexInit):
+		return "complex"
+	elif init == "complex_independent" or isinstance(init, ComplexIndependentFilters):
+		return "complex_independent"
+	else:
+		return initializers.serialize(init)
+
+
+
 class ComplexConv(Layer):
     """Abstract nD complex convolution layer.
     This layer creates a complex convolution kernel that is convolved
@@ -132,13 +153,10 @@ class ComplexConv(Layer):
         self.init_criterion = init_criterion
         self.spectral_parametrization = spectral_parametrization
         self.epsilon = epsilon
-        if kernel_initializer in ['complex', 'complex_independent']:
-            self.kernel_initializer = kernel_initializer
-        else:
-            self.kernel_initializer = initializers.get(kernel_initializer)
-        self.bias_initializer = initializers.get(bias_initializer)
-        self.gamma_diag_initializer = initializers.get(gamma_diag_initializer)
-        self.gamma_off_initializer = initializers.get(gamma_off_initializer)
+        self.kernel_initializer = sanitizedInitGet(kernel_initializer)
+        self.bias_initializer = sanitizedInitGet(bias_initializer)
+        self.gamma_diag_initializer = sanitizedInitGet(gamma_diag_initializer)
+        self.gamma_off_initializer = sanitizedInitGet(gamma_off_initializer)
         self.kernel_regularizer = regularizers.get(kernel_regularizer)
         self.bias_regularizer = regularizers.get(bias_regularizer)
         self.gamma_diag_regularizer = regularizers.get(gamma_diag_regularizer)
@@ -380,10 +398,6 @@ class ComplexConv(Layer):
             return (input_shape[0],) + (2 * self.filters,) + tuple(new_space)
 
     def get_config(self):
-        if self.kernel_initializer in {'complex', 'complex_independent'}:
-            ki = self.kernel_initializer
-        else:
-            ki = initializers.serialize(self.kernel_initializer)
         config = {
             'rank': self.rank,
             'filters': self.filters,
@@ -395,10 +409,10 @@ class ComplexConv(Layer):
             'activation': activations.serialize(self.activation),
             'use_bias': self.use_bias,
             'normalize_weight': self.normalize_weight,
-            'kernel_initializer': ki,
-            'bias_initializer': initializers.serialize(self.bias_initializer),
-            'gamma_diag_initializer': initializers.serialize(self.gamma_diag_initializer),
-            'gamma_off_initializer': initializers.serialize(self.gamma_off_initializer),
+            'kernel_initializer': sanitizedInitSer(self.kernel_initializer),
+            'bias_initializer': sanitizedInitSer(self.bias_initializer),
+            'gamma_diag_initializer': sanitizedInitSer(self.gamma_diag_initializer),
+            'gamma_off_initializer': sanitizedInitSer(self.gamma_off_initializer),
             'kernel_regularizer': regularizers.serialize(self.kernel_regularizer),
             'bias_regularizer': regularizers.serialize(self.bias_regularizer),
             'gamma_diag_regularizer': regularizers.serialize(self.gamma_diag_regularizer),
@@ -821,7 +835,7 @@ class WeightNorm_Conv(_Conv):
         super(WeightNorm_Conv, self).__init__(**kwargs)
         if self.rank == 1:
             self.data_format = 'channels_last'
-        self.gamma_initializer = initializers.get(gamma_initializer)
+        self.gamma_initializer = sanitizedInitGet(gamma_initializer)
         self.gamma_regularizer = regularizers.get(gamma_regularizer)
         self.gamma_constraint = constraints.get(gamma_constraint)
         self.epsilon = epsilon
@@ -887,7 +901,7 @@ class WeightNorm_Conv(_Conv):
 
     def get_config(self):
         config = {
-            'gamma_initializer': initializers.serialize(self.gamma_initializer),
+            'gamma_initializer': sanitizedInitSer(self.gamma_initializer),
             'gamma_regularizer': regularizers.serialize(self.gamma_regularizer),
             'gamma_constraint': constraints.serialize(self.gamma_constraint),
             'epsilon': self.epsilon

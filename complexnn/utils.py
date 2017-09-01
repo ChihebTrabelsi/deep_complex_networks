@@ -5,7 +5,7 @@
 # Authors: Dmitriy Serdyuk, Olexa Bilaniuk, Chiheb Trabelsi
 
 import keras.backend as K
-from keras.layers import Lambda
+from keras.layers import Layer, Lambda
 
 #
 # GetReal/GetImag Lambda layer Implementation
@@ -69,6 +69,20 @@ def getpart_output_shape(input_shape):
 
     return tuple(returned_shape)
 
-GetReal = Lambda(get_realpart, output_shape=getpart_output_shape)
-GetImag = Lambda(get_imagpart, output_shape=getpart_output_shape)
-GetAbs = Lambda(get_abs, output_shape=getpart_output_shape)
+
+class GetReal(Layer):
+    def call(self, inputs):
+        return get_realpart(inputs)
+    def compute_output_shape(self, input_shape):
+        return getpart_output_shape(input_shape)
+class GetImag(Layer):
+    def call(self, inputs):
+        return get_imagpart(inputs)
+    def compute_output_shape(self, input_shape):
+        return getpart_output_shape(input_shape)
+class GetAbs(Layer):
+    def call(self, inputs):
+        return get_abs(inputs)
+    def compute_output_shape(self, input_shape):
+        return getpart_output_shape(input_shape)
+

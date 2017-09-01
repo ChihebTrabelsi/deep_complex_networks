@@ -123,8 +123,8 @@ def getResidualBlock(I, filter_size, featmaps, stage, block, shortcut, convArgs,
 			                            (1, 1),
 			                  **convArgs)(I)
 			
-			O_real = Concatenate(channel_axis)([GetReal(X), GetReal(O)])
-			O_imag = Concatenate(channel_axis)([GetImag(X), GetImag(O)])
+			O_real = Concatenate(channel_axis)([GetReal()(X), GetReal()(O)])
+			O_imag = Concatenate(channel_axis)([GetImag()(X), GetImag()(O)])
 			O      = Concatenate(      1     )([O_real,     O_imag])
 	
 	return O
@@ -590,7 +590,9 @@ def train(d):
 		np.random.seed(d.seed % 2**32)
 		model = KM.load_model(chkptFilename, custom_objects={
 			"ComplexConv2D":             ComplexConv2D,
-			"ComplexBatchNormalization": ComplexBN
+			"ComplexBatchNormalization": ComplexBN,
+			"GetReal":                   GetReal,
+			"GetImag":                   GetImag
 		})
 		L.getLogger("entry").info("... reloading complete.")
 		
