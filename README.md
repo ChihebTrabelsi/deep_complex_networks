@@ -97,7 +97,7 @@ Please cite our work as
 
 ```
 @ARTICLE {,
-    author  = "Chiheb Trabelsi, Olexa Bilaniuk, Dmitriy Serdyuk, Sandeep Subramanian, João Felipe Santos, Soroush Mehri, Negar Rostamzadeh, Yoshua Bengio, Christopher J Pal",
+    author  = "Chiheb Trabelsi, Olexa Bilaniuk, Ying Zhang, Dmitriy Serdyuk, Sandeep Subramanian, João Felipe Santos, Soroush Mehri, Negar Rostamzadeh, Yoshua Bengio, Christopher J Pal",
     title   = "Deep Complex Networks",
     journal = "arXiv preprint arXiv:1705.09792",
     year    = "2017"
