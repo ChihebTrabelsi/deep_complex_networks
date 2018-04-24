@@ -56,7 +56,7 @@ def schedule(epoch):
 def get_model(model, feature_dim):
     if model.startswith('complex'):
         complex_ = True
-        model = model.split('_')[1]
+        model = model[8:]
     else:
         complex_ = False
     if complex_:
