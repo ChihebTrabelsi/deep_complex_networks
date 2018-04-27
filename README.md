@@ -72,7 +72,7 @@ Experiments
 
     ```
     train.py shallow_model --in-memory --model=shallow_convnet --local-data data/musicnet_11khz.npz
-    train.py shallow__complex_model --in-memory --model=complex_shallow_convnet --complex --local-data data/musicnet_11khz.npz
+    train.py shallow_complex_model --in-memory --model=complex_shallow_convnet --complex --local-data data/musicnet_11khz.npz
     ```
 
 3. Run deep models
