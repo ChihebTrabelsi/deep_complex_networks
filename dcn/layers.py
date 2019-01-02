@@ -274,7 +274,7 @@ class ComplexLinear(torch.nn.Module):
 
 class STFT2d(torch.nn.Module):
 	def __init__(self, in_channels, kernel_size=8, window_fn=np.hamming, stride=1,
-	             padding=0, dilation=1):
+	             padding=0, dilation=1, inverse=False):
 		super(STFT2d, self).__init__()
 		self.in_channels  = in_channels
 		self.kernel_size  = _mktuple2d(kernel_size)
@@ -282,6 +282,7 @@ class STFT2d(torch.nn.Module):
 		self.stride       = _mktuple2d(stride)
 		self.padding      = _mktuple2d(padding)
 		self.dilation     = _mktuple2d(dilation)
+		self.inverse      = bool(inverse);
 		
 		h  = self.kernel_size[0]
 		w  = self.kernel_size[1]
@@ -302,39 +303,73 @@ class STFT2d(torch.nn.Module):
 	def forward(self, xr, xi=None):
 		inpSize = xr.shape
 		B  = inpSize[0]
-		xr = xr.view(B*self.in_channels, 1, *inpSize[2:])
-		rr = torch.nn.functional.conv2d(xr,
-		                                self.Wr,
-		                                None,
-		                                self.stride,
-		                                self.padding,
-		                                self.dilation)
-		ri = torch.nn.functional.conv2d(xr,
-		                                self.Wi,
-		                                None,
-		                                self.stride,
-		                                self.padding,
-		                                self.dilation)
-		rr = rr.view(B, -1, *rr.shape[2:])
-		ri = ri.view(B, -1, *ri.shape[2:])
-		
-		if xi is None:
-			return rr, ri
-		else:
-			xi = xi.view(B*self.in_channels, 1, *inpSize[2:])
-			ir = torch.nn.functional.conv2d(xi,
-			                                self.Wr,
-			                                None,
-			                                self.stride,
-			                                self.padding,
-			                                self.dilation)
-			ii = torch.nn.functional.conv2d(xi,
-			                                self.Wi,
-			                                None,
-			                                self.stride,
-			                                self.padding,
-			                                self.dilation)
+		if self.inverse:
+			assert(xi is not None)
+			xr = xr.view(B*self.in_channels, -1, *inpSize[2:])
+			xi = xi.view(B*self.in_channels, -1, *inpSize[2:])
+			rr = torch.nn.functional.conv_transpose2d(xr,
+			                                          self.Wr,
+			                                          None,
+			                                          stride  =self.stride,
+			                                          padding =self.padding,
+			                                          dilation=self.dilation)
+			ri = torch.nn.functional.conv_transpose2d(xr,
+			                                          self.Wi,
+			                                          None,
+			                                          stride  =self.stride,
+			                                          padding =self.padding,
+			                                          dilation=self.dilation)
+			ir = torch.nn.functional.conv_transpose2d(xi,
+			                                          self.Wr,
+			                                          None,
+			                                          stride  =self.stride,
+			                                          padding =self.padding,
+			                                          dilation=self.dilation)
+			ii = torch.nn.functional.conv_transpose2d(xi,
+			                                          self.Wi,
+			                                          None,
+			                                          stride  =self.stride,
+			                                          padding =self.padding,
+			                                          dilation=self.dilation)
+			rr = rr.view(B, -1, *rr.shape[2:])
+			ri = ri.view(B, -1, *ri.shape[2:])
 			ir = ir.view(B, -1, *ir.shape[2:])
 			ii = ii.view(B, -1, *ii.shape[2:])
 			return rr-ii, ri+ir
+		else:
+			xr = xr.view(B*self.in_channels, 1, *inpSize[2:])
+			rr = torch.nn.functional.conv2d(xr,
+			                                self.Wr,
+			                                None,
+			                                stride  =self.stride,
+			                                padding =self.padding,
+			                                dilation=self.dilation)
+			ri = torch.nn.functional.conv2d(xr,
+			                                self.Wi,
+			                                None,
+			                                stride  =self.stride,
+			                                padding =self.padding,
+			                                dilation=self.dilation)
+			rr = rr.view(B, -1, *rr.shape[2:])
+			ri = ri.view(B, -1, *ri.shape[2:])
+			
+			if xi is None:
+				return rr, ri
+			else:
+				xi = xi.view(B*self.in_channels, 1, *inpSize[2:])
+				ir = torch.nn.functional.conv2d(xi,
+				                                self.Wr,
+				                                None,
+				                                stride  =self.stride,
+				                                padding =self.padding,
+				                                dilation=self.dilation)
+				ii = torch.nn.functional.conv2d(xi,
+				                                self.Wi,
+				                                None,
+				                                stride  =self.stride,
+				                                padding =self.padding,
+				                                dilation=self.dilation)
+				ir = ir.view(B, -1, *ir.shape[2:])
+				ii = ii.view(B, -1, *ii.shape[2:])
+				return rr-ii, ri+ir
 
