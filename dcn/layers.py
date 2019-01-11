@@ -294,6 +294,7 @@ class STFT2d(torch.nn.Module):
 		F  = np.einsum("i,j,fi,gj->fgij", wH, wW, Fh, Fw)
 		F  = F.astype("complex128")
 		F  = F.reshape(-1,1,h,w)
+		F  = F.conjugate() if self.inverse else F
 		
 		Wr = torch.empty(*F.real.shape).copy_(torch.from_numpy(F.real))
 		Wi = torch.empty(*F.imag.shape).copy_(torch.from_numpy(F.imag))
