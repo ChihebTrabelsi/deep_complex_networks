@@ -286,8 +286,8 @@ class STFT2d(torch.nn.Module):
 		
 		h  = self.kernel_size[0]
 		w  = self.kernel_size[1]
-		wH = self.window_fn[0](h)
-		wW = self.window_fn[1](w)
+		wH = np.ones(h) if self.inverse else self.window_fn[0](h)
+		wW = np.ones(w) if self.inverse else self.window_fn[1](w)
 		Fh = scipy.linalg.dft(h, "sqrtn").astype("complex128")
 		Fw = scipy.linalg.dft(w, "sqrtn").astype("complex128")
 		
