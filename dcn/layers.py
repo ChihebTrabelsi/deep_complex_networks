@@ -11,6 +11,7 @@ from   .functional import *
 # Utility functions
 #
 def _istuple(x):   return isinstance(x, tuple)
+def _mktuple1d(x): return x if _istuple(x) else (x,)
 def _mktuple2d(x): return x if _istuple(x) else (x,x)
 
 #
@@ -270,6 +271,106 @@ class ComplexLinear(torch.nn.Module):
 		yir = torch.nn.functional.linear(xi, self.Wr, None)
 		yii = torch.nn.functional.linear(xi, self.Wi, None)
 		return yrr-yii, yri+yir
+
+
+class STFT1d(torch.nn.Module):
+	def __init__(self, in_channels, kernel_size=8, window_fn=np.hamming, stride=1,
+	             padding=0, dilation=1, inverse=False):
+		super(STFT2d, self).__init__()
+		self.in_channels  = in_channels
+		self.kernel_size  = _mktuple1d(kernel_size)
+		self.window_fn    = _mktuple1d(window_fn)
+		self.stride       = _mktuple1d(stride)
+		self.padding      = _mktuple1d(padding)
+		self.dilation     = _mktuple1d(dilation)
+		self.inverse      = bool(inverse);
+		
+		w  = self.kernel_size[0]
+		wW = np.ones(w) if self.inverse else self.window_fn[0](w)
+		Fw = scipy.linalg.dft(w, "sqrtn").astype("complex128")
+		
+		F  = np.einsum("i,fi->fi", wW, Fw)
+		F  = F.astype("complex128")
+		F  = F.reshape(-1,1,w)
+		F  = F.conjugate() if self.inverse else F
+		
+		Wr = torch.empty(*F.real.shape).copy_(torch.from_numpy(F.real))
+		Wi = torch.empty(*F.imag.shape).copy_(torch.from_numpy(F.imag))
+		self.register_buffer("Wr", Wr)
+		self.register_buffer("Wi", Wi)
+	
+	def forward(self, xr, xi=None):
+		inpSize = xr.shape
+		B  = inpSize[0]
+		if self.inverse:
+			assert(xi is not None)
+			xr = xr.view(B*self.in_channels, -1, *inpSize[2:])
+			xi = xi.view(B*self.in_channels, -1, *inpSize[2:])
+			rr = torch.nn.functional.conv_transpose1d(xr,
+			                                          self.Wr,
+			                                          None,
+			                                          stride  =self.stride,
+			                                          padding =self.padding,
+			                                          dilation=self.dilation)
+			ri = torch.nn.functional.conv_transpose1d(xr,
+			                                          self.Wi,
+			                                          None,
+			                                          stride  =self.stride,
+			                                          padding =self.padding,
+			                                          dilation=self.dilation)
+			ir = torch.nn.functional.conv_transpose1d(xi,
+			                                          self.Wr,
+			                                          None,
+			                                          stride  =self.stride,
+			                                          padding =self.padding,
+			                                          dilation=self.dilation)
+			ii = torch.nn.functional.conv_transpose1d(xi,
+			                                          self.Wi,
+			                                          None,
+			                                          stride  =self.stride,
+			                                          padding =self.padding,
+			                                          dilation=self.dilation)
+			rr = rr.view(B, -1, *rr.shape[2:])
+			ri = ri.view(B, -1, *ri.shape[2:])
+			ir = ir.view(B, -1, *ir.shape[2:])
+			ii = ii.view(B, -1, *ii.shape[2:])
+			return rr-ii, ri+ir
+		else:
+			xr = xr.view(B*self.in_channels, 1, *inpSize[2:])
+			rr = torch.nn.functional.conv1d(xr,
+			                                self.Wr,
+			                                None,
+			                                stride  =self.stride,
+			                                padding =self.padding,
+			                                dilation=self.dilation)
+			ri = torch.nn.functional.conv1d(xr,
+			                                self.Wi,
+			                                None,
+			                                stride  =self.stride,
+			                                padding =self.padding,
+			                                dilation=self.dilation)
+			rr = rr.view(B, -1, *rr.shape[2:])
+			ri = ri.view(B, -1, *ri.shape[2:])
+			
+			if xi is None:
+				return rr, ri
+			else:
+				xi = xi.view(B*self.in_channels, 1, *inpSize[2:])
+				ir = torch.nn.functional.conv1d(xi,
+				                                self.Wr,
+				                                None,
+				                                stride  =self.stride,
+				                                padding =self.padding,
+				                                dilation=self.dilation)
+				ii = torch.nn.functional.conv1d(xi,
+				                                self.Wi,
+				                                None,
+				                                stride  =self.stride,
+				                                padding =self.padding,
+				                                dilation=self.dilation)
+				ir = ir.view(B, -1, *ir.shape[2:])
+				ii = ii.view(B, -1, *ii.shape[2:])
+				return rr-ii, ri+ir
 
 
 class STFT2d(torch.nn.Module):
