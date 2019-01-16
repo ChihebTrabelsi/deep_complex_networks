@@ -276,7 +276,7 @@ class ComplexLinear(torch.nn.Module):
 class STFT1d(torch.nn.Module):
 	def __init__(self, in_channels, kernel_size=8, window_fn=np.hamming, stride=1,
 	             padding=0, dilation=1, inverse=False):
-		super(STFT2d, self).__init__()
+		super(STFT1d, self).__init__()
 		self.in_channels  = in_channels
 		self.kernel_size  = _mktuple1d(kernel_size)
 		self.window_fn    = _mktuple1d(window_fn)
